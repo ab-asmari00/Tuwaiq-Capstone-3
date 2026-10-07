@@ -238,7 +238,11 @@ public class UserService {
         return rideRepository.findUpcomingRidesByUserId(userId, LocalDate.now());
     }
 
-    // 11. Send the user's match plan (upcoming rides) by email as a PDF (lang = "ar" or "en")
+    // Send the user's upcoming ride plan by email as a PDF.
+    public void sendPlanByEmail(Integer userId) {
+        sendPlanByEmail(userId, "en");
+    }
+
     public void sendPlanByEmail(Integer userId, String lang) {
         User user = getUserById(userId);
         List<Ride> rides = rideRepository.findUpcomingRidesByUserId(userId, LocalDate.now());
@@ -246,8 +250,9 @@ public class UserService {
             throw new ApiException("You have no upcoming plans to send");
         }
 
-        boolean ar = "ar".equalsIgnoreCase(lang);
-        byte[] pdf = pdfService.createPlanPdf(user, rides, lang);
+        String language = "ar".equalsIgnoreCase(lang) ? "ar" : "en";
+        boolean ar = "ar".equals(language);
+        byte[] pdf = pdfService.createPlanPdf(user, rides, language);
 
         String subject = ar ? "خطة مبارياتك" : "Your match plan";
         String text = ar
